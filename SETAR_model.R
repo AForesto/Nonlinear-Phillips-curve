@@ -7,7 +7,7 @@
 #' @min_ratio Sets the lower bound for the grid search, default is 0.2
 #' @max_ratio Sets the upper bound for the grid search, default is 0.8
 
-SETAR <- function(data, y_name, control_vars, grid_search, min_ratio, max_ratio){
+SETAR <- function(data, y_name, control_vars, grid_search, min_ratio = 0.2, max_ratio = 0.8){
 
   # Preliminary check to determine if Y is in our data frame
   if (!y_name %in% colnames(data)){
