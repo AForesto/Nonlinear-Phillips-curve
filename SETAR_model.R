@@ -15,7 +15,7 @@ SETAR <- function(data, y_name, control_vars, grid_search, min_ratio = 0.2, max_
     }
 
   # Check if Y is numeric
-  if (!is.numeric(data[[y_name]]){
+  if (!is.numeric(data[[y_name]])){
     data[[y_name]] <- as.numeric(data[[y_name]])
     }
 
@@ -141,13 +141,13 @@ SETAR <- function(data, y_name, control_vars, grid_search, min_ratio = 0.2, max_
       filter(L1 <= mean_tau)
     # Prepare the matrices for independent variables
     # High regime independent variables
-    X_above <- as.matrix(df_above[, predictors])
+    X_above <- as.matrix(df_above[, c(predictors, control_vars)])
     # Add constant
-    X_above <- cbind(1, X)
+    X_above <- cbind(1, X_above)
     # Low regime independent variables
     X_below <- as.matrix(df_above[, predictors])
     # Add constant
-    X_below <- cbind(1, X)
+    X_below <- cbind(1, X_below)
 
     # Estimate High and Low inflation regime models
     High_regime <- OLS_Estim(X_above, as.matrix(df_above[[y_name]]))
@@ -159,11 +159,12 @@ SETAR <- function(data, y_name, control_vars, grid_search, min_ratio = 0.2, max_
 
     # Return a list of all the outputs from the function
     results <- list(models = models,
-                    tau = top_thresholds,
+                    tau = top_tau,
                     mean_tau = mean_tau,
                     rss = top_rss,
                     submodels = submodels)
   }
+  return(results)
 }
 
       
