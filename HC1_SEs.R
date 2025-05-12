@@ -32,4 +32,5 @@ HC1_Estimation <- function(model, data){
   return(list(standard_errors = standard_errors_robust,
               t_values        = t_values_robust,
               p_values        = p_values_robust))
+  }
   
