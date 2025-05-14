@@ -13,7 +13,7 @@ Recursive_Linear_Model <- function(data, y_name, controls = NULL, start_size) {
     na.omit()
 
  # Check the data after creating lags
- print(paste("There are ", nrow(data), " after preparation))
+ print(paste("There are ", nrow(data), " after preparation"))
  if (nrow(data) <= start_size) {
    stop("Not enough rows in our data set after preparation")
  }
