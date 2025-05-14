@@ -25,12 +25,6 @@ Linear_Model <- function(Y, X, conf_level = 0.95, HC1 = TRUE, const = TRUE){
       X <- X[,-1]  # Remove constant if present when const = FALSE
     }
   }
-  # Create lags of Y and store in X
-  L1 <- lag(Y, 1)
-  L2 <- lag(Y, 2)
-  Lags <- c(L1, L2)
-
-  X <- cbind(Lags,X)
   
   # Calculate the coefficients (Betas)
   # Beta = (X'X)(-1)X'Y
