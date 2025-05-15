@@ -1,36 +1,51 @@
-############################ FUNCTION TO ESTIMATE HETEROSKEDASTICITY-CONSISTENT STANDARD ERRORS #######################
+############################ FUNCTION TO ESTIMATE HETEROSKEDASTICITY AND AUTOCORRELATION ADJUSTED STANDARD ERRORS ############
 
-#' @model Object that contains the model diagnostics - can be pulled from the lm function or other model objects
-#' @data  Data frame or matrix that contains both the dependent (Y) and independent variables (X)
-
-HC1_Estimation <- function(model, data){
-
-  # Convert the model object to matrix form
-  X <- model.matrix(model)
-  # Extract the residuals of the model
-  epsilon <- residuals(model) 
-  # Extract the fitted values form the model
-  H <- hatvalues(model)
-
-  # The HC1 adjustment factor
-  D <- diag((1-H)^2)
-
-  # Estimate the robust covariance matrix
-  covariance_matrix <- solve(t(X) %*% X) %*% (t(X) %*% D %*% X) %*% solve(t(X) %*% X)
-  # Estimate robust standard errors
-  standard_errors_robust <- sqrt(diag(covariance_matrix))
-
-  # Estimate t-statistics and p-values
-  # model coefficients
-  coefficients <- coef(model)
-  # t-values
-  t_values_robust <- coefficients/standard_errors_robust
-  # p-values
-  p_values_robust <- 2*pt(-abs(t_values_robust), df = df.residual(model))
-
-  # Return a list of the outputs
-  return(list(standard_errors = standard_errors_robust,
-              t_values        = t_values_robust,
-              p_values        = p_values_robust))
+#' @X matrix or vector of independent variables
+#' @residuals vector of error values from the regression
+#' @bandwith the number of lags considered in the covariance calculation, default to Newey-West
+HAC_se <- function(X, residuals, bandwidth = NULL) {
+  n <- length(residuals)
+  k <- ncol(X)
+  
+  # Default bandwidth using Newey-West optimal bandwidth
+  if (is.null(bandwidth)) {
+    bandwidth <- floor(4 * (n/100)^(2/9))
   }
+  
+  # Initialize the middle term of the sandwich estimator
+  Omega <- matrix(0, k, k)
+  
+  # Compute X'ee'X accounting for autocorrelation
+  for (j in 0:bandwidth) {
+    # Compute autocorrelation at lag j
+    Gamma_j <- matrix(0, k, k)
+    for (t in (j+1):n) {
+      xee <- X[t,] * residuals[t]
+      if (j > 0) {
+        xee_lag <- X[t-j,] * residuals[t-j]
+      } else {
+        xee_lag <- xee
+      }
+      Gamma_j <- Gamma_j + (xee %*% t(xee_lag))
+    }
+    
+    # Apply Bartlett kernel
+    if (j > 0) {
+      weight <- 1 - j/(bandwidth + 1)
+      Omega <- Omega + weight * (Gamma_j + t(Gamma_j))
+    } else {
+      Omega <- Omega + Gamma_j
+    }
+  }
+  
+  # Compute bread of sandwich
+  bread <- solve(t(X) %*% X)
+  
+  # Compute HAC variance-covariance matrix
+  V_HAC <- bread %*% Omega %*% bread
+  
+  # Return HAC standard errors
+  return(sqrt(diag(V_HAC)))
+}
+
   
