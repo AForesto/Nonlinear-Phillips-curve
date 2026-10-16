@@ -42,7 +42,7 @@ Local_Proj <- function(y, x, z = NULL, const = TRUE, type = "regular", Horizon, 
   delta <- delta * shock_scale # Scale the shock if needed
   
   # Dimensions for impulse responses
-  HR <- H + 1 - h1 # Number of periods projection spans
+  HR <- Horizon + 1 - h1 # Number of periods projection spans
   TS <- T*HR # Total number of time steps which is the dimension multiplied by the horizon
   
   # Size of the XS matrix based on the projection type
